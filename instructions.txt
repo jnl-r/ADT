@@ -1,0 +1,68 @@
+You are to implement the following ADTs and their specific implementations:
+
+- FILO Queue, a.k.a. Stack (specifically, array stack)
+- FIFO Queue (linked list)
+- Priority Queue (meldable heap)
+- Deque (array deque)
+- List (array deque and doubly linked list)
+- Sorted set (skiplist and red-black trees)
+- Unsorted set (chained hash table)
+- Graph (adjacency matrix)
+
+Publish this collection of data structures via Github and use any license which adheres to the definition of open source [1], examples of such being GPL or CC-BY-SA. More info at [2].
+
+While we were not able to cover heaps and trees, you may read the textbook to obtain an idea on what these are (and as well as hints to their implementations). [3, 4]
+
+Absolutely do _not_ just copy-and-paste implementations from the textbook or from anywhere else over to your submission here.
+As much as possible, implement these structures as best as you can from memory and reimplement the structures on your own.
+Feel free to add twists to these data structures, no matter if it's beneficial for performance or not.
+
+## Benchmarks
+
+Have at least some crude form of benchmarking to measure the performance of each of your data structures and show them off in your `README` or a separate page.
+
+Some benchmarking ideas are: repeated inserts and removes (in the order of 100,000 or a million), repeated sorting of thousands of lists, searching of a million items, etc. Measure the time it takes for your data structures to complete these benchmarks.
+
+You may do any kind of benchmarking, as long as it's measurable and useful.
+Measurable being that it's enough operations for it to register as nonzero time, and useful being it's not just calling trivial operations in the data structure.
+
+## README
+
+Write about the repository, how to use it, how to run benchmarks, and how to test.
+
+A short checklist for a README found here [5].
+And examples: [6] and [7].
+
+## Suggested directory structure
+
+```
+include/
+| deque.h
+| graph.h
+| list.h
+| queue.h
+| sset.h
+| stack.h
+| uset.h
+src/
+| adjacencymatrix.h
+| arraydeque.h
+| arraystack.h
+| chainedhashtable.h
+| dllist.h
+| redblacktrees.h
+| skiplist.h
+| sllist.h
+tests/
+| adjacencymatrix.cpp
+| arraydeque.cpp
+| arraystack.cpp
+| chainedhashtable.cpp
+| dllist.cpp
+| redblacktrees.cpp
+| skiplist.cpp
+| sllist.cpp
+LICENSE
+Makefile
+README
+```
