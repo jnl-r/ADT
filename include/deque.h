@@ -1,34 +1,22 @@
 #pragma once
 #include <cstddef>
 
-template <typename T>
-struct Deque
-{
-	// Adds x to the front of the deque.
-	virtual void addFirst(const T& x) = 0;
+template<typename T>
+class Deque {
+public:
+    virtual ~Deque() {}
 
-	// Adds x to the back of the deque.
-	virtual void addLast(const T& x) = 0;
+    virtual void pushFront(const T& value) = 0;
+    virtual void pushBack(const T& value) = 0;
 
-	// Removes the item at the front of the deque.
-	// Returns the removed item.
-	virtual T removeFirst() = 0;
+    virtual T popFront() = 0;
+    virtual T popBack() = 0;
 
-	// Removes the item at the back of the deque.
-	// Returns the removed item.
-	virtual T removeLast() = 0;
+    virtual const T& front() const = 0;
+    virtual const T& back() const = 0;
 
-	// Returns (without removing) the item at the front of the deque.
-	virtual const T peekFirst() const = 0;
+    virtual bool empty() const = 0;
+    virtual size_t size() const = 0;
 
-	// Returns (without removing) the item at the back of the deque.
-	virtual const T peekLast() const = 0;
-
-	// Returns whether the structure is empty or not.
-	virtual bool isEmpty() const = 0;
-
-	// Clears (removes) the data structure of items.
-	virtual void clear() = 0;
-
-	virtual size_t size() const = 0;
+    virtual void clear() = 0;
 };
