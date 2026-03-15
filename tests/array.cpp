@@ -1,5 +1,5 @@
 #include <iostream>
-#include "arraystack.h"
+#include "../src/arraystack.h"
 
 using namespace std;
 
@@ -19,6 +19,15 @@ int main()
 
     cout << "New size: " << st.size() << endl;
     cout << "Element at index 1: " << st.get(1) << endl;
+
+    cout << "\ntesing FILO" << endl;
+    st.push(100);
+    st.push(200);
+    cout << "Pushed 100 and 200. New size: " << st.size() << endl;
+    
+    cout << "Popped: " << st.pop() << " (Expected 200)" << endl;
+    cout << "Popped: " << st.pop() << " (Expected 100)" << endl;
+    cout << "Size after pops: " << st.size() << endl;
 
     return 0;
 }
