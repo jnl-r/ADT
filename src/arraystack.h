@@ -1,9 +1,12 @@
-#include "array.h"
+#pragma once
+#include "../include/array.h"
+#include "../include/list.h"
+#include "../include/stack.h" 
 #include <cassert>
 #include <algorithm>
 
 template <class T>
-class ArrayStack : public List<T>
+class ArrayStack : public List<T>, public Stack<T> 
 {
 public:
     array<T> a;
@@ -11,18 +14,18 @@ public:
 
     ArrayStack() : a(1), n(0) {}
 
-    int size()
+    size_t size() const override
     {
         return n;
     }
 
-    T get(int i)
+    T get(const size_t i) const override 
     {
-        assert(i >= 0 && i < n);
+        assert(i >= 0 && i < (size_t)n);
         return a[i];
     }
 
-    T set(int i, T x)
+    T set(const size_t i, const T& x) override
     {
         T y = a[i];
         a[i] = x;
@@ -39,11 +42,11 @@ public:
         a = b;
     }
 
-    void add(int i, T x)
+    void add(const size_t i, const T& x) override
     {
         if ((n + 1) > a.length)
             resize();
-        for (int j = n; j > i; j--)
+        for (int j = n; j > (int)i; j--)
         {
             a[j] = a[j - 1];
         }
@@ -51,7 +54,7 @@ public:
         n++;
     }
 
-    T remove(int i)
+    T remove(const size_t i) override
     {
         T x = a[i];
         for (int j = i; j < n - 1; j++)
@@ -62,5 +65,16 @@ public:
         if (a.length >= 3 * n)
             resize();
         return x;
+    }
+
+    void push(const T& x) override
+    {
+        add(n, x); 
+    }
+
+    T pop() override
+    {
+        assert(n > 0); 
+        return remove(n - 1); 
     }
 };
