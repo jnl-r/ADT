@@ -1,125 +1,86 @@
-#include "arraydeque.h"
+#include "../src/arraydeque.h"
 #include <iostream>
 #include <string>
 
 void test_basic_operations()
 {
-    std::cout << "=== Testing Basic Operations ===" << std::endl;
-    ArrayDeque<int> deque;
+    std::cout << "- Basic Operations -\n";
 
-    // Test empty deque
-    std::cout << "Empty: " << deque.isEmpty() << " (expected: 1)" << std::endl;
-    std::cout << "Size: " << deque.size() << " (expected: 0)" << std::endl;
+    ArrayDeque<int> dq;
 
-    // Add elements
-    deque.add(0, 10);
-    std::cout << "Added 10 at index 0" << std::endl;
-    std::cout << "Empty: " << deque.isEmpty() << " (expected: 0)" << std::endl;
-    std::cout << "Size: " << deque.size() << " (expected: 1)" << std::endl;
+    std::cout << "Empty: " << dq.empty() << " (expected 1)\n";
 
-    deque.add(0, 20); // front
-    std::cout << "Added 20 at index 0" << std::endl;
+    dq.pushBack(10);
+    dq.pushFront(20);
+    dq.pushBack(30);
 
-    deque.add(2, 30); // at end
-    std::cout << "Added 30 at index 2" << std::endl;
-
-    deque.add(1, 15); // in middle
-    std::cout << "Added 15 at index 1" << std::endl;
-
-    // Expected: 20, 15, 10, 30
-    std::cout << "Current size: " << deque.size() << " (expected: 4)" << std::endl;
+    std::cout << "Front: " << dq.front() << " (expected 20)\n";
+    std::cout << "Back: " << dq.back() << " (expected 30)\n";
+    std::cout << "Size: " << dq.size() << " (expected 3)\n";
 }
 
-void test_remove_operations()
+void test_pop_operations()
 {
-    std::cout << "\n=== Testing Remove Operations ===" << std::endl;
-    ArrayDeque<std::string> deque;
+    std::cout << "\n- Pop Operations -\n";
 
-    // Add some elements
-    deque.add(0, "apple");
-    deque.add(1, "banana");
-    deque.add(2, "cherry");
-    deque.add(3, "date");
+    ArrayDeque<std::string> dq;
 
-    std::cout << "Initial size: " << deque.size() << std::endl;
+    dq.pushBack("apple");
+    dq.pushBack("banana");
+    dq.pushBack("cherry");
 
-    // Remove from middle
-    std::string removed = deque.remove(1);
-    std::cout << "Removed: " << removed << " (expected: banana)" << std::endl;
-    std::cout << "Size after removal: " << deque.size() << " (expected: 3)" << std::endl;
+    std::cout << dq.popFront() << " (expected apple)\n";
+    std::cout << dq.popBack() << " (expected cherry)\n";
+    std::cout << dq.popFront() << " (expected banana)\n";
 
-    // Remove from front
-    removed = deque.remove(0);
-    std::cout << "Removed: " << removed << " (expected: apple)" << std::endl;
-
-    // Remove from end
-    removed = deque.remove(1); // Now indices are 0:cherry, 1:date
-    std::cout << "Removed: " << removed << " (expected: date)" << std::endl;
-
-    std::cout << "Final size: " << deque.size() << " (expected: 1)" << std::endl;
+    std::cout << "Empty: " << dq.empty() << " (expected 1)\n";
 }
 
-void test_resize_operations()
+void test_resize()
 {
-    std::cout << "\n=== Testing Resize Operations ===" << std::endl;
-    ArrayDeque<int> deque;
+    std::cout << "\n- Resize Test -\n";
 
-    // Add many elements to trigger resize
-    for (int i = 0; i < 10; i++)
-    {
-        deque.add(i, i * 10);
-        std::cout << "Added " << (i * 10) << ", size: " << deque.size()
-                  << ", array length: " << deque.a.length << std::endl;
+    ArrayDeque<int> dq;
+
+    for (int i = 0; i < 20; i++) {
+        dq.pushBack(i);
     }
 
-    // Remove elements to trigger downsize
-    for (int i = 0; i < 7; i++)
-    {
-        int removed = deque.remove(0);
-        std::cout << "Removed " << removed << ", size: " << deque.size()
-                  << ", array length: " << deque.a.length << std::endl;
+    std::cout << "Size after insert: " << dq.size() << " (expected 20)\n";
+
+    for (int i = 0; i < 15; i++) {
+        dq.popFront();
     }
+
+    std::cout << "Size after removals: " << dq.size() << " (expected 5)\n";
 }
 
-void test_edge_cases()
+void test_mixed()
 {
-    std::cout << "\n=== Testing Edge Cases ===" << std::endl;
-    ArrayDeque<double> deque;
+    std::cout << "\n- Mixed Operations -\n";
 
-    // Test adding/removing at various positions
-    deque.add(0, 1.1);
-    deque.add(0, 2.2); // Add to front of existing element
-    deque.add(2, 3.3); // Add to end
-    deque.add(1, 4.4); // Add to middle
+    ArrayDeque<int> dq;
 
-    std::cout << "After mixed additions - size: " << deque.size() << std::endl;
+    dq.pushFront(1);
+    dq.pushBack(2);
+    dq.pushFront(3);
+    dq.pushBack(4);
 
-    // Test wrap-around behavior
-    while (deque.size() > 0)
-    {
-        double val = deque.remove(0);
-        std::cout << "Removed: " << val << std::endl;
-    }
+    // should be: 3,1,2,4
 
-    std::cout << "Final empty: " << deque.isEmpty() << " (expected: 1)" << std::endl;
+    std::cout << dq.popFront() << " (expected 3)\n";
+    std::cout << dq.popBack() << " (expected 4)\n";
+    std::cout << dq.popFront() << " (expected 1)\n";
+    std::cout << dq.popBack() << " (expected 2)\n";
 }
 
 int main()
 {
-    try
-    {
-        test_basic_operations();
-        test_remove_operations();
-        test_resize_operations();
-        test_edge_cases();
+    test_basic_operations();
+    test_pop_operations();
+    test_resize();
+    test_mixed();
 
-        std::cout << "\n=== All tests completed successfully! ===" << std::endl;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    }
-
+    std::cout << "\nAll tests done.\n";
     return 0;
 }
