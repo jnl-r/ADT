@@ -25,7 +25,7 @@ private:
     Node *getNode(size_t i)
     {
         if (i >= n)
-            throw std::out_of_range("Index out of bounds");
+            throw out_of_range("Index out of bounds");
         Node *curr;
         if (i < n / 2)
         {
@@ -46,7 +46,7 @@ private:
     const Node *getNode(size_t i) const
     {
         if (i >= n)
-            throw std::out_of_range("Index out of bounds");
+            throw out_of_range("Index out of bounds");
         const Node *curr;
         if (i < n / 2)
         {
@@ -93,7 +93,7 @@ public:
     void add(size_t i, const T &x) override
     {
         if (i > n)
-            throw std::out_of_range("Index out of bounds");
+            throw out_of_range("Index out of bounds");
 
         Node *node = new Node(x);
 
