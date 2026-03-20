@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include "../include/list.h"
 
+using namespace std;
+
 template <typename T>
 class DLList : public List<T>
 {
