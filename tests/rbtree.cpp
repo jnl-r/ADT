@@ -1,12 +1,3 @@
-/* COMMANDS:
- * add <val>    (e.g., add 10)
- * remove <val> (e.g., remove 10)
- * find <val>   (e.g., find 10)
- * size         (prints current count)
- * clear        (wipes the tree)
- * exit         (stops the program)
- */
-
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -254,9 +245,20 @@ int main() {
     std::string cmd;
     int val;
 
-    std::cout << "Red-Black Tree Terminal (Type 'exit' to quit)\n";
+    std::cout << "\n\n\n################################################################################\n";
+    std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~ RED-BLACK TREE TESTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    std::cout << "Commands:" << std::endl;
+    std::cout << "  add <value>                      insert value into the tree" << std::endl;
+    std::cout << "  remove <value>                   remove value from the tree" << std::endl;
+    std::cout << "  find <value>                     check if value exists" << std::endl;
+    std::cout << "  size                             print number of elements" << std::endl;
+    std::cout << "  clear                            remove all elements" << std::endl;
+    std::cout << "  print                            print tree (in-order with colors)" << std::endl;
+    std::cout << "  quit                             exit program" << std::endl;
+    std::cout << "--------------------------------------------------------------------------------\n";
+    std::cout << "################################################################################\n";
     
-    while (std::cin >> cmd && cmd != "exit") {
+    while (std::cout << "> " && std::cin >> cmd && cmd != "quit" && cmd != "exit") {
         if (cmd == "add") {
             std::cin >> val;
             std::cout << (tree.add(val) ? "OK" : "DUP") << "\n";
