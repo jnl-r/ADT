@@ -1,6 +1,7 @@
-#include "../src/arraydeque.h"
+#include "../src/meldableheap.h"
 #include <iostream>
 #include <chrono>
+#include <random>
 
 using namespace std;
 using namespace std::chrono;
@@ -14,42 +15,48 @@ long long measureTime(Func f)
     return duration_cast<milliseconds>(end - start).count();
 }
 
-void benchmarkPushFront(int N)
+void benchmarkInsert(int N)
 {
-    ArrayDeque<int> dq;
+    MeldableHeap<int> pq;
 
     auto time = measureTime([&]()
     {
         for (int i = 0; i < N; i++)
-            dq.pushFront(i);
+            pq.push(i);
     });
 
-    cout << "PushFront (" << N << "): " << time << " ms\n";
+    cout << "Insert (" << N << "): " << time << " ms\n";
 }
 
-void benchmarkPushBack(int N)
+void benchmarkRemoveMin(int N)
 {
-    ArrayDeque<int> dq;
+    MeldableHeap<int> pq;
+
+    for (int i = 0; i < N; i++)
+        pq.push(i);
 
     auto time = measureTime([&]()
     {
         for (int i = 0; i < N; i++)
-            dq.pushBack(i);
+            pq.pop();
     });
 
-    cout << "PushBack (" << N << "): " << time << " ms\n";
+    cout << "RemoveMin (" << N << "): " << time << " ms\n";
 }
 
 void benchmarkMixed(int N)
 {
-    ArrayDeque<int> dq;
+    random_device rd;
+    mt19937 gen(rd());
+
+    MeldableHeap<int> pq;
 
     auto time = measureTime([&]()
     {
         for (int i = 0; i < N; i++)
         {
-            dq.pushBack(i);
-            if (i % 2 == 0) dq.popFront();
+            pq.push(gen() % 1000000);
+            if (i % 2 == 0) pq.pop();
         }
     });
 
@@ -58,19 +65,19 @@ void benchmarkMixed(int N)
 
 int main()
 {
-    cout << "ARRAY DEQUE BENCHMARK\n";
+    cout << "MELDABLE HEAP BENCHMARK\n";
 
     int N1 = 100000;
     int N2 = 200000;
 
     cout << "--- SMALL ---\n";
-    benchmarkPushFront(N1);
-    benchmarkPushBack(N1);
+    benchmarkInsert(N1);
+    benchmarkRemoveMin(N1);
     benchmarkMixed(N1);
 
     cout << "\n--- LARGE ---\n";
-    benchmarkPushFront(N2);
-    benchmarkPushBack(N2);
+    benchmarkInsert(N2);
+    benchmarkRemoveMin(N2);
     benchmarkMixed(N2);
 
 }
