@@ -4,17 +4,18 @@
 #include <random>
 #include <iomanip>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-long long measure(Func f)
+double measure(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start).count();
+    return duration<double, milli>(end - start).count();
 }
 
 void runSuite(int N)
@@ -24,10 +25,10 @@ void runSuite(int N)
     uniform_int_distribution<int> dist(1, 1000000);
 
     SkipListSSet<int> set1;
-    long long tAdd = measure([&]()
-                             {
+    double tAdd = measure([&]()
+                          {
         for (int i = 0; i < N; ++i) {
-            set1.add(dist(gen)); 
+            set1.add(dist(gen));
         } });
 
     SkipListSSet<int> set2;
@@ -35,8 +36,8 @@ void runSuite(int N)
     {
         set2.add(dist(gen));
     }
-    long long tRemove = measure([&]()
-                                {
+    double tRemove = measure([&]()
+                             {
         for (int i = 0; i < N; ++i) {
             set2.remove(dist(gen));
         } });
@@ -46,8 +47,8 @@ void runSuite(int N)
     {
         set3.add(dist(gen));
     }
-    long long tFind = measure([&]()
-                              {
+    double tFind = measure([&]()
+                           {
         for (int i = 0; i < N; ++i) {
             set3.contains(dist(gen));
         } });
@@ -56,8 +57,8 @@ void runSuite(int N)
     mt19937 mixedGen(rd());
     uniform_int_distribution<int> mixedDist(1, 1000000);
 
-    long long tMixed = measure([&]()
-                               {
+    double tMixed = measure([&]()
+                            {
         for (int i = 0; i < N; ++i) {
             int x = mixedDist(mixedGen);
             set4.add(x);
@@ -65,11 +66,18 @@ void runSuite(int N)
             set4.contains(x);
         } });
 
+    auto format = [](double t) -> string
+    {
+        ostringstream oss;
+        oss << fixed << setprecision(3) << t << "ms";
+        return oss.str();
+    };
+
     cout << left << setw(12) << N
-         << setw(15) << (to_string(tAdd) + "ms")
-         << setw(15) << (to_string(tRemove) + "ms")
-         << setw(15) << (to_string(tFind) + "ms")
-         << setw(15) << (to_string(tMixed) + "ms") << endl;
+         << setw(15) << format(tAdd)
+         << setw(15) << format(tRemove)
+         << setw(15) << format(tFind)
+         << setw(15) << format(tMixed) << endl;
 }
 
 int main()
@@ -89,6 +97,5 @@ int main()
     }
 
     cout << endl;
-
     return 0;
 }
