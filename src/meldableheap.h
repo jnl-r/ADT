@@ -72,7 +72,13 @@ public:
     }
 
     const T& top() const override {
+        if (!root) throw std::runtime_error("Heap is empty");
         return root->value;
+    }
+
+    T pop() override {
+        if (!root) throw std::runtime_error("Heap is empty");
+    ...
     }
 
     bool empty() const override {
