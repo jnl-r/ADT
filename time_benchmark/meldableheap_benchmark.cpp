@@ -2,82 +2,71 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <iomanip>
+#include <string>
+#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-long long measureTime(Func f)
-{
+double measure(Func f) {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start).count();
+    
+    auto us = duration_cast<microseconds>(end - start).count();
+    return static_cast<double>(us) / 1000.0; 
 }
 
-void benchmarkInsert(int N)
-{
-    MeldableHeap<int> pq;
+// Helper to format the output string "X.XXXms"
+string formatMs(double time) {
+    stringstream ss;
+    ss << fixed << setprecision(3) << time << "ms";
+    return ss.str();
+}
 
-    auto time = measureTime([&]()
-    {
-        for (int i = 0; i < N; i++)
-            pq.push(i);
+void runSuite(int N) {
+    MeldableHeap<int> heap;
+    
+    double tInsert = measure([&]() {
+        for (int i = 0; i < N; i++) heap.push(i); 
     });
 
-    cout << "Insert (" << N << "): " << time << " ms\n";
-}
-
-void benchmarkRemoveMin(int N)
-{
-    MeldableHeap<int> pq;
-
-    for (int i = 0; i < N; i++)
-        pq.push(i);
-
-    auto time = measureTime([&]()
-    {
-        for (int i = 0; i < N; i++)
-            pq.pop();
+    double tRemove = measure([&]() {
+        for (int i = 0; i < N; i++) heap.pop(); 
     });
 
-    cout << "RemoveMin (" << N << "): " << time << " ms\n";
-}
-
-void benchmarkMixed(int N)
-{
+    //Mixed (Randomized Add/Remove)
     random_device rd;
     mt19937 gen(rd());
-
-    MeldableHeap<int> pq;
-
-    auto time = measureTime([&]()
-    {
-        for (int i = 0; i < N; i++)
-        {
-            pq.push(gen() % 1000000);
-            if (i % 2 == 0) pq.pop();
+    MeldableHeap<int> mixedHeap;
+    double tMixed = measure([&]() {
+        for (int i = 0; i < N; i++) {
+            mixedHeap.push(gen() % 1000000);
+            if (i % 2 == 0) mixedHeap.pop();
         }
     });
 
-    cout << "Mixed (" << N << "): " << time << " ms\n";
+    cout << left << setw(12) << N 
+         << setw(18) << formatMs(tInsert)
+         << setw(18) << formatMs(tRemove)
+         << setw(18) << formatMs(tMixed) << endl;
 }
 
-int main()
-{
-    cout << "MELDABLE HEAP BENCHMARK\n";
+int main() {
+    cout << "\n MELDABLE HEAP PERFORMANCE \n";
+    cout << left << setw(12) << "Elements" 
+         << setw(18) << "Insert (Add)" 
+         << setw(18) << "Remove (Min)" 
+         << setw(18) << "Mixed (Ops)" << endl;
+    cout << string(66, '-') << endl;
 
-    int N1 = 100000;
-    int N2 = 200000;
+    runSuite(10000);
+    runSuite(50000);
+    runSuite(100000);
+    runSuite(500000);
+    runSuite(1000000);
 
-    cout << "--- SMALL ---\n";
-    benchmarkInsert(N1);
-    benchmarkRemoveMin(N1);
-    benchmarkMixed(N1);
-
-    cout << "\n--- LARGE ---\n";
-    benchmarkInsert(N2);
-    benchmarkRemoveMin(N2);
-    benchmarkMixed(N2);
-
+    return 0;
 }
