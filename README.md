@@ -132,7 +132,7 @@ g++ -std=c++17 time_benchmark/meldableheap_benchmark.cpp -I include -o heap_benc
 ### <3 Contributing
 ---
 
-This project was developed as a **Final Requirement for CMSC 123 (Data Structures and Algorithms)** during the 1st Semester.
+This project was developed as a **Final Requirement for CMSC 123 (Data Structures)** during the 1st Semester.
 
 It is a collaborative effort focused on applying theoretical concepts of **Abstract Data Types (ADTs)** into fully functional and benchmarked C++ implementations.
 ### Guidelines
