@@ -14,6 +14,13 @@
 
 ---
 
+### Goals
+- Enforce clean **interface-driven design**
+- Demonstrate **correct time complexities in practice**
+- Provide **interactive and testable implementations** of core data structures
+- Serve as a **learning and benchmarking tool** for CMSC 123
+
+---
 ## 🚀 The Data Structures
 
 We rejected the standard textbook code. Every structure here is strictly bound by **abstract interfaces** and benchmarked at scale to prove its mathematical time complexity.
@@ -61,14 +68,92 @@ Instead of dumping all our code into single files, we built a highly modular pip
 
 ---
 
-## 💻 Quickstart Execution
+## 🛠️ Installation & Setup
 
-> **Prove it yourself:** Our benchmark scripts pause and wait for you to input `n` (the number of operations to test). 
+Before running the benchmarks or tests, ensure your environment is ready. 
+This library requires a compiler that supports the **C++17** standard (GCC 7+ or Clang 5+).
 
 ```bash
-# 1. Compile the Chained Hash Table benchmark
-cd time_benchmark
-g++ chainedhashtable.cpp -o hash_bench
+# Clone the repository
+git clone https://github.com/jnl-r/ADT.git
+cd ADT
 
-# 2. Run it and input a number (like 10000) to test 10K operations
-./hash_bench
+# Verify your compiler version
+g++ --version
+```
+---
+## Interactive Tests !
+
+Our interactive test scripts are built for you to experiment. You can manually add, remove, and find elements to see how the logic handles your specific inputs. Have fun with it!
+
+```bash
+# 1. Choose a Structure and Compile
+# Example: Testing the Red-Black Tree
+g++ -std=c++17 tests/rbtree.cpp -I include -o rbtree_test
+
+# 2. Run and Follow the Menu
+# When you execute the file, a Command Header will appear automatically, listing every available operation (e.g., add, remove, find, size).
+./rbtree_test
+```
+
+<p align="center">
+  <img src="assets/Demo123 copy.gif" width="700"/>
+</p>
+<p align="center">
+  <i>Interactive test run of the Red-Black Tree</i>
+</p>
+
+---
+### 📁 Performance Benchmarking
+---
+Our benchmarking suite uses fixed input sizes ranging from **10,000 to 1,000,000 elements** to provide a standardized performance report. This allows you to observe how each data structure scales under increasing workloads.
+
+```bash
+# 1. Compile the Meldable Heap benchmark
+g++ -std=c++17 time_benchmark/meldableheap_benchmark.cpp -I include -o heap_bench
+
+# 2. Run the automated suite (no input required)
+./heap_bench
+```
+<p align="center">
+  <img src="assets/meldableheap_demo.png" width="700"/>
+</p>
+
+<p align="center">
+  <i>Note: Actual performance may vary depending on hardware and compiler optimizations.</i>
+</p>
+
+---
+
+### <3 Contributing
+---
+
+This project was developed as a **Final Requirement for CMSC 123 (Data Structures and Algorithms)** during the 1st Semester.
+
+It is a collaborative effort focused on applying theoretical concepts of **Abstract Data Types (ADTs)** into fully functional and benchmarked C++ implementations.
+### Guidelines
+- Follow existing coding style
+- Use clear function naming
+- Maintain separation of interface and implementation
+### Contributors
+- Dexter
+- Janelle
+- Diane
+---
+
+## 🚧 Future Improvements
+
+- Add unit testing framework (e.g., Google Test)
+- Expand benchmark visualizations
+- Implement additional structures (e.g., AVL Tree)
+- Optimize memory pooling strategies
+ 
+---
+## 📜 License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+You are free to use, modify, and distribute this software under the terms of the license. Any derivative work must also be distributed under the same license.
+
+See the full license here:  
+[LICENSE](./LICENSE)
