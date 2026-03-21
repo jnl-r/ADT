@@ -9,34 +9,34 @@ using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-long long measureTime(Func f)
+double measureTime(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start).count();
+    return duration<double>(end - start).count();
 }
 
 void benchmarkPushFront(int N)
 {
     DLList<int> list;
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             list.add(0, i);
         } });
-    cout << "Push front (" << N << " operations): " << time << " ms\n";
+    cout << "Push front (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkPushBack(int N)
 {
     DLList<int> list;
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             list.add(list.size(), i);
         } });
-    cout << "Push back (" << N << " operations): " << time << " ms\n";
+    cout << "Push back (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkRandomInserts(int N)
@@ -46,19 +46,17 @@ void benchmarkRandomInserts(int N)
     uniform_int_distribution<int> valDist(1, 1000000);
 
     DLList<int> list;
-    // filling initial data
     for (int i = 0; i < N / 10; ++i)
         list.add(list.size(), i);
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
-            // random position within the current list size
             uniform_int_distribution<size_t> posDist(0, list.size());
             size_t pos = posDist(gen);
             list.add(pos, valDist(gen));
         } });
-    cout << "Random inserts (" << N << " operations): " << time << " ms\n";
+    cout << "Random inserts (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkRandomRemoves(int N)
@@ -70,15 +68,14 @@ void benchmarkRandomRemoves(int N)
     for (int i = 0; i < N * 2; ++i)
         list.add(list.size(), i);
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
-            // random index within the current list size
             uniform_int_distribution<size_t> posDist(0, list.size() - 1);
             size_t pos = posDist(gen);
             list.remove(pos);
         } });
-    cout << "Random removes (" << N << " operations): " << time << " ms\n";
+    cout << "Random removes (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkRandomGetSet(int N)
@@ -92,21 +89,21 @@ void benchmarkRandomGetSet(int N)
 
     uniform_int_distribution<size_t> posDist(0, list.size() - 1);
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             size_t pos = posDist(gen);
             int val = list.get(pos);
             list.set(pos, val + 1);
         } });
-    cout << "Random get/set (" << N << " operations): " << time << " ms\n";
+    cout << "Random get/set (" << N << " operations): " << time << " seconds\n";
 }
 
 int main()
 {
     string line;
     cout << "\n\n\n################################################################################\n";
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DLLIST TIME BENCHMARK" << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DLLIST TIME BENCHMARK ~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
     cout << "\nCommands:" << endl;
     cout << "  all <N>                     run all benchmarks with N operations" << endl;
     cout << "  pushfront <N>               push front N times" << endl;
@@ -145,8 +142,8 @@ int main()
             else
             {
                 cout << "\n\n\n################################################################################\n";
-                cout << "~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~\n";
-                cout << "(note: some may take longer, especially if N is large. So, just wait...) " << "\n\n";
+                cout << "~~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~~\n";
+                cout << "         (sheesh! operations completed before the clock could react...)\n\n";
                 benchmarkPushFront(N);
                 benchmarkPushBack(N);
                 benchmarkRandomInserts(N);
