@@ -80,7 +80,7 @@ int main()
     cout << "\n\n\n################################################################################\n";
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~ SKIP LIST (SORTED SET) BENCHMARK ~~~~~~~~~~~~~~~~~~~~~~~\n";
     cout << "\nCommands:" << endl;
-    cout << "  all <N>                      run all benchmarks with N operations" << endl;
+    cout << "  all <N>                       run all benchmarks with N operations" << endl;
     cout << "  add <N>                       test insert N times" << endl;
     cout << "  remove <N>                    test remove N times" << endl;
     cout << "  find <N>                      test find N times" << endl;
