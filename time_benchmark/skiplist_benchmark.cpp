@@ -9,12 +9,12 @@ using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-long long measureTime(Func f)
+double measureTime(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start).count();
+    return duration<double>(end - start).count();
 }
 
 void benchmarkAdd(int N)
@@ -24,12 +24,12 @@ void benchmarkAdd(int N)
     mt19937 gen(rd());
     uniform_int_distribution<int> dist(1, 1000000);
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             set.add(dist(gen));
         } });
-    cout << "Add (" << N << " operations): " << time << " ms\n";
+    cout << "Add (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkRemove(int N)
@@ -39,17 +39,18 @@ void benchmarkRemove(int N)
     mt19937 gen(rd());
     uniform_int_distribution<int> dist(1, 1000000);
 
+    // Pre‑fill the set with N elements
     for (int i = 0; i < N; ++i)
     {
         set.add(dist(gen));
     }
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             set.remove(dist(gen));
         } });
-    cout << "Remove (" << N << " operations): " << time << " ms\n";
+    cout << "Remove (" << N << " operations): " << time << " seconds\n";
 }
 
 void benchmarkFind(int N)
@@ -59,17 +60,18 @@ void benchmarkFind(int N)
     mt19937 gen(rd());
     uniform_int_distribution<int> dist(1, 1000000);
 
+    // Pre‑fill the set with N elements
     for (int i = 0; i < N; ++i)
     {
         set.add(dist(gen));
     }
 
-    auto time = measureTime([&]()
-                            {
+    double time = measureTime([&]()
+                              {
         for (int i = 0; i < N; ++i) {
             set.contains(dist(gen));
         } });
-    cout << "Find (" << N << " operations): " << time << " ms\n";
+    cout << "Find (" << N << " operations): " << time << " seconds\n";
 }
 
 int main()
@@ -113,8 +115,8 @@ int main()
             else
             {
                 cout << "\n\n\n################################################################################\n";
-                cout << "~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~\n";
-                cout << "(note: some may take longer, especially if N is large. So, just wait...) " << "\n\n";
+                cout << "~~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~~\n";
+                cout << "         (sheesh! operations completed before the clock could react...)\n\n";
                 benchmarkAdd(N);
                 benchmarkRemove(N);
                 benchmarkFind(N);
