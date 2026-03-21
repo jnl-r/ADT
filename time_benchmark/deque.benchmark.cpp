@@ -1,33 +1,76 @@
+#include "../src/arraydeque.h"
 #include <iostream>
 #include <chrono>
-#include "../src/arraydeque.h"
 
 using namespace std;
 using namespace std::chrono;
 
-int main() {
+template <typename Func>
+long long measureTime(Func f)
+{
+    auto start = high_resolution_clock::now();
+    f();
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start).count();
+}
+
+void benchmarkPushFront(int N)
+{
     ArrayDeque<int> dq;
 
-    const int N = 1000000;
+    auto time = measureTime([&]()
+    {
+        for (int i = 0; i < N; i++)
+            dq.pushFront(i);
+    });
 
-    auto start = high_resolution_clock::now();
+    cout << "PushFront (" << N << "): " << time << " ms\n";
+}
 
-    // insert
-    for (int i = 0; i < N; i++) {
-        dq.pushBack(i);
-    }
+void benchmarkPushBack(int N)
+{
+    ArrayDeque<int> dq;
 
-    // remove
-    for (int i = 0; i < N; i++) {
-        dq.popFront();
-    }
+    auto time = measureTime([&]()
+    {
+        for (int i = 0; i < N; i++)
+            dq.pushBack(i);
+    });
 
-    auto end = high_resolution_clock::now();
+    cout << "PushBack (" << N << "): " << time << " ms\n";
+}
 
-    auto duration = duration_cast<milliseconds>(end - start);
+void benchmarkMixed(int N)
+{
+    ArrayDeque<int> dq;
 
-    cout << "Operations: " << N * 2 << endl;
-    cout << "Time: " << duration.count() << " ms" << endl;
+    auto time = measureTime([&]()
+    {
+        for (int i = 0; i < N; i++)
+        {
+            dq.pushBack(i);
+            if (i % 2 == 0) dq.popFront();
+        }
+    });
 
-    return 0;
+    cout << "Mixed (" << N << "): " << time << " ms\n";
+}
+
+int main()
+{
+    cout << "ARRAY DEQUE BENCHMARK\n";
+
+    int N1 = 100000;
+    int N2 = 200000;
+
+    cout << "--- SMALL ---\n";
+    benchmarkPushFront(N1);
+    benchmarkPushBack(N1);
+    benchmarkMixed(N1);
+
+    cout << "\n--- LARGE ---\n";
+    benchmarkPushFront(N2);
+    benchmarkPushBack(N2);
+    benchmarkMixed(N2);
+
 }
