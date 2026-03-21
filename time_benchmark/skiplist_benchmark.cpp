@@ -1,172 +1,94 @@
+#include "../src/skiplist.h"
 #include <iostream>
 #include <chrono>
 #include <random>
-#include <string>
-#include <sstream>
-#include "../src/skiplist.h"
+#include <iomanip>
+#include <vector>
 
 using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-double measureTime(Func f)
+long long measure(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration<double>(end - start).count();
+    return duration_cast<milliseconds>(end - start).count();
 }
 
-void benchmarkAdd(int N)
+void runSuite(int N)
 {
-    SkipListSSet<int> set;
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> dist(1, 1000000);
 
-    double time = measureTime([&]()
-                              {
+    SkipListSSet<int> set1;
+    long long tAdd = measure([&]()
+                             {
         for (int i = 0; i < N; ++i) {
-            set.add(dist(gen));
+            set1.add(dist(gen)); 
         } });
-    cout << "Add (" << N << " operations): " << time << " seconds\n";
-}
 
-void benchmarkRemove(int N)
-{
-    SkipListSSet<int> set;
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> dist(1, 1000000);
-
-    // Pre‑fill the set with N elements
+    SkipListSSet<int> set2;
     for (int i = 0; i < N; ++i)
     {
-        set.add(dist(gen));
+        set2.add(dist(gen));
     }
-
-    double time = measureTime([&]()
-                              {
+    long long tRemove = measure([&]()
+                                {
         for (int i = 0; i < N; ++i) {
-            set.remove(dist(gen));
+            set2.remove(dist(gen));
         } });
-    cout << "Remove (" << N << " operations): " << time << " seconds\n";
-}
 
-void benchmarkFind(int N)
-{
-    SkipListSSet<int> set;
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> dist(1, 1000000);
-
-    // Pre‑fill the set with N elements
+    SkipListSSet<int> set3;
     for (int i = 0; i < N; ++i)
     {
-        set.add(dist(gen));
+        set3.add(dist(gen));
     }
-
-    double time = measureTime([&]()
+    long long tFind = measure([&]()
                               {
         for (int i = 0; i < N; ++i) {
-            set.contains(dist(gen));
+            set3.contains(dist(gen));
         } });
-    cout << "Find (" << N << " operations): " << time << " seconds\n";
+
+    SkipListSSet<int> set4;
+    mt19937 mixedGen(rd());
+    uniform_int_distribution<int> mixedDist(1, 1000000);
+
+    long long tMixed = measure([&]()
+                               {
+        for (int i = 0; i < N; ++i) {
+            int x = mixedDist(mixedGen);
+            set4.add(x);
+            if (i % 3 == 0) set4.remove(x);
+            set4.contains(x);
+        } });
+
+    cout << left << setw(12) << N
+         << setw(15) << (to_string(tAdd) + "ms")
+         << setw(15) << (to_string(tRemove) + "ms")
+         << setw(15) << (to_string(tFind) + "ms")
+         << setw(15) << (to_string(tMixed) + "ms") << endl;
 }
 
 int main()
 {
-    string line;
-    cout << "\n\n\n################################################################################\n";
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~ SKIP LIST (SORTED SET) BENCHMARK ~~~~~~~~~~~~~~~~~~~~~~~\n";
-    cout << "\nCommands:" << endl;
-    cout << "  all <N>                       run all benchmarks with N operations" << endl;
-    cout << "  add <N>                       test insert N times" << endl;
-    cout << "  remove <N>                    test remove N times" << endl;
-    cout << "  find <N>                      test find N times" << endl;
-    cout << "  quit                          exit" << endl;
-    cout << "\n--------------------------------------------------------------------------------\n";
-    cout << "################################################################################\n";
+    cout << "\nSKIP LIST (SORTED SET) PERFORMANCE (times in milliseconds)\n";
+    cout << left << setw(12) << "Elements"
+         << setw(15) << "Add"
+         << setw(15) << "Remove"
+         << setw(15) << "Find"
+         << setw(15) << "Mixed" << endl;
+    cout << string(70, '-') << endl;
 
-    cout << "> ";
-    while (getline(cin, line))
+    vector<int> sizes = {10000, 50000, 100000, 500000, 1000000};
+    for (int N : sizes)
     {
-        if (line.empty())
-        {
-            cout << "> ";
-            continue;
-        }
-
-        istringstream iss(line);
-        string cmd;
-        iss >> cmd;
-
-        if (cmd == "quit" || cmd == "exit")
-        {
-            break;
-        }
-        else if (cmd == "all")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                cout << "\n\n\n################################################################################\n";
-                cout << "~~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~~\n";
-                cout << "         (sheesh! operations completed before the clock could react...)\n\n";
-                benchmarkAdd(N);
-                benchmarkRemove(N);
-                benchmarkFind(N);
-                cout << "--------------------------------------------------------------------------------\n";
-                cout << "################################################################################\n";
-            }
-        }
-        else if (cmd == "add")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkAdd(N);
-            }
-        }
-        else if (cmd == "remove")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkRemove(N);
-            }
-        }
-        else if (cmd == "find")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkFind(N);
-            }
-        }
-        else
-        {
-            cout << "Unknown command." << endl;
-        }
-
-        cout << "> ";
+        runSuite(N);
     }
+
+    cout << endl;
 
     return 0;
 }
