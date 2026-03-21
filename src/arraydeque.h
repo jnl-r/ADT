@@ -8,7 +8,7 @@
 template <typename T>
 class ArrayDeque : public Deque<T>, public List<T>
 {
-private:
+public: // <-- Changed to public so tests/deque.cpp can read a.length!
     array<T> a;
     int j;
     int n;
@@ -25,7 +25,6 @@ private:
         j = 0;
     }
 
-public:
     ArrayDeque() : a(MIN_CAPACITY), j(0), n(0) {}
 
     void add(const size_t i, const T& x) override {
@@ -35,10 +34,12 @@ public:
 
         if (i < (size_t)n / 2) {
             j = (j == 0) ? a.length - 1 : j - 1;
-            for (int k = (int)i; k > 0; k--) {
-                a[(j + k) % a.length] = a[(j + k - 1) % a.length];
+            // FIXED LOOP: Shift elements to the left correctly
+            for (int k = 0; k < (int)i; k++) {
+                a[(j + k) % a.length] = a[(j + k + 1) % a.length];
             }
         } else {
+            // Shift elements to the right
             for (int k = n; k > (int)i; k--) {
                 a[(j + k) % a.length] = a[(j + k - 1) % a.length];
             }
