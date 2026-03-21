@@ -123,7 +123,11 @@ g++ -std=c++17 time_benchmark/meldableheap_benchmark.cpp -I include -o heap_benc
   <i>Note: Actual performance may vary depending on hardware and compiler optimizations.</i>
 </p>
 
+### References
 ---
+- Morin, P. *Open Data Structures (C++ Edition)*. [opendatastructures.org](https://opendatastructures.org/) 
+  - Randomized Meldable Heap
+  - Red-Black Trees
 
 ### <3 Contributing
 ---
@@ -135,11 +139,12 @@ It is a collaborative effort focused on applying theoretical concepts of **Abstr
 - Follow existing coding style
 - Use clear function naming
 - Maintain separation of interface and implementation
-### Contributors
-- Dexter
-- Janelle
-- Diane
+
+### 📞 Contact
 ---
+- Dexter Rico - jcrico2@up.edu.ph
+- Janelle Ranario - jrranario1@up.edu.ph
+- Diane Bustamante - dcbustamante@up.edu.ph 
 
 ## 🚧 Future Improvements
 
