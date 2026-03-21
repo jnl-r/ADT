@@ -1,12 +1,12 @@
 #pragma once
 #include "../include/array.h"
 #include "../include/list.h"
-#include "../include/stack.h" 
+#include "../include/stack.h"
 #include <cassert>
 #include <algorithm>
 
 template <class T>
-class ArrayStack : public List<T>, public Stack<T> 
+class ArrayStack : public List<T>, public Stack<T>
 {
 public:
     array<T> a;
@@ -19,13 +19,13 @@ public:
         return n;
     }
 
-    T get(const size_t i) const override 
+    T get(const size_t i) const override
     {
         assert(i >= 0 && i < (size_t)n);
         return a[i];
     }
 
-    T set(const size_t i, const T& x) override
+    T set(const size_t i, const T &x) override
     {
         T y = a[i];
         a[i] = x;
@@ -42,7 +42,7 @@ public:
         a = b;
     }
 
-    void add(const size_t i, const T& x) override
+    void add(const size_t i, const T &x) override
     {
         if ((n + 1) > a.length)
             resize();
@@ -67,14 +67,22 @@ public:
         return x;
     }
 
-    void push(const T& x) override
+    void clear() override
     {
-        add(n, x); 
+        // Reset to an empty array of size 1
+        array<T> b(1);
+        a = b;
+        n = 0;
+    }
+
+    void push(const T &x) override
+    {
+        add(n, x);
     }
 
     T pop() override
     {
-        assert(n > 0); 
-        return remove(n - 1); 
+        assert(n > 0);
+        return remove(n - 1);
     }
 };
