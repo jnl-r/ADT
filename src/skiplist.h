@@ -1,8 +1,8 @@
 #pragma once
 
-#include <random>
 #include <vector>
-#include <limits>
+#include <cstdlib>
+#include <ctime>
 #include <stdexcept>
 #include "../include/sset.h"
 
@@ -16,56 +16,49 @@ private:
     {
         T data;
         vector<Node *> next;
-        Node(const T &x, size_t level) : data(x),
-                                         next(level + 1, nullptr) {}
+        Node(const T &x, int level) : data(x),
+                                      next(level + 1, nullptr) {}
     };
 
     Node *head;
-    size_t n;
-    size_t maxLevel;
-    static const size_t MAX_LEVEL = 32;
+    int n;
+    int h;
+    static const int MAX_LEVEL = 32;
 
-    mutable mt19937 rng;
-    mutable bernoulli_distribution coin;
-
-    size_t randomLevel() const
+    // manual random height generator
+    int randomHeight()
     {
-        size_t level = 0;
-        while (level < MAX_LEVEL - 1 && coin(rng))
+        int level = 0;
+        while (level < MAX_LEVEL - 1 && (rand() & 1))
         {
             ++level;
         }
         return level;
     }
 
-    pair<Node *, vector<Node *>> find(const T &x) const
+    vector<Node *> findPreds(const T &x)
     {
-        vector<Node *> preds(maxLevel + 1, nullptr);
-        Node *curr = head;
-        for (int level = static_cast<int>(maxLevel); level >= 0; --level)
+        vector<Node *> preds(h + 1, nullptr);
+        Node *u = head;
+        int r = h;
+        while (r >= 0)
         {
-            while (curr->next[level] && curr->next[level]->data < x)
+            while (u->next[r] && u->next[r]->data < x)
             {
-                curr = curr->next[level];
+                u = u->next[r];
             }
-            preds[level] = curr;
+            preds[r] = u;
+            --r;
         }
-        curr = curr->next[0];
-        if (curr && curr->data == x)
-        {
-            return {curr, preds};
-        }
-        else
-        {
-            return {nullptr, preds};
-        }
+        return preds;
     }
 
 public:
-    SkipListSSet() : n(0), maxLevel(0), rng(random_device{}()), coin(0.5)
+    SkipListSSet() : n(0), h(0)
     {
+        srand(static_cast<unsigned>(time(nullptr)));
         head = new Node(T(), MAX_LEVEL);
-        for (size_t i = 0; i <= MAX_LEVEL; ++i)
+        for (int i = 0; i <= MAX_LEVEL; ++i)
         {
             head->next[i] = nullptr;
         }
@@ -79,26 +72,24 @@ public:
 
     bool add(const T &x) override
     {
-        pair<Node *, vector<Node *>> result = find(x);
-        Node *found = result.first;
-        vector<Node *> &preds = result.second;
+        vector<Node *> preds = findPreds(x);
 
-        if (found)
+        if (preds[0]->next[0] && preds[0]->next[0]->data == x)
         {
             return false;
         }
-        size_t level = randomLevel();
-        if (level > maxLevel)
+        int level = randomHeight();
+        if (level > h)
         {
-            preds.resize(level + 1, nullptr);
-            for (size_t i = maxLevel + 1; i <= level; ++i)
+            preds.resize(level + 1, head);
+            for (int i = h + 1; i <= level; ++i)
             {
                 preds[i] = head;
             }
-            maxLevel = level;
+            h = level;
         }
         Node *newNode = new Node(x, level);
-        for (size_t i = 0; i <= level; ++i)
+        for (int i = 0; i <= level; ++i)
         {
             newNode->next[i] = preds[i]->next[i];
             preds[i]->next[i] = newNode;
@@ -109,34 +100,41 @@ public:
 
     bool remove(const T &x) override
     {
-        pair<Node *, vector<Node *>> result = find(x);
-        Node *found = result.first;
-        vector<Node *> &preds = result.second;
-
-        if (!found)
+        vector<Node *> preds = findPreds(x);
+        Node *target = preds[0]->next[0];
+        if (!target || target->data != x)
         {
             return false;
         }
-        Node *toDelete = found;
-        size_t level = toDelete->next.size() - 1;
-        for (size_t i = 0; i <= level; ++i)
+        int level = static_cast<int>(target->next.size()) - 1;
+        for (int i = 0; i <= level; ++i)
         {
-            preds[i]->next[i] = toDelete->next[i];
+            preds[i]->next[i] = target->next[i];
         }
-        while (maxLevel > 0 && head->next[maxLevel] == nullptr)
+
+        while (h > 0 && head->next[h] == nullptr)
         {
-            --maxLevel;
+            --h;
         }
-        delete toDelete;
+        delete target; // shrink height if needed
         --n;
         return true;
     }
 
     bool contains(const T &x) const override
     {
-        pair<Node *, vector<Node *>> result = find(x);
-        Node *found = result.first;
-        return found != nullptr;
+        Node *u = head;
+        int r = h;
+        while (r >= 0)
+        {
+            while (u->next[r] && u->next[r]->data < x)
+            {
+                u = u->next[r];
+            }
+            --r;
+        }
+        u = u->next[0];
+        return u && u->data == x;
     }
 
     size_t size() const override
@@ -153,12 +151,13 @@ public:
             delete curr;
             curr = next;
         }
-        for (size_t i = 0; i <= maxLevel; ++i)
+        // Reset head pointers
+        for (int i = 0; i <= h; ++i)
         {
             head->next[i] = nullptr;
         }
         n = 0;
-        maxLevel = 0;
+        h = 0;
     }
 
     vector<T> toVector() const
