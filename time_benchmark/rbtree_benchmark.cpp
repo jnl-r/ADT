@@ -58,8 +58,11 @@ int main() {
          << setw(15) << "Mixed (Ops)" << endl;
     cout << string(70, '-') << endl;
 
+    runSuite(10000);
+    runSuite(50000);
     runSuite(100000);
     runSuite(500000);
+    runSuite(1000000);
 
     return 0;
 }
