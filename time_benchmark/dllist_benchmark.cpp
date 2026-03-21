@@ -4,17 +4,18 @@
 #include <random>
 #include <iomanip>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-long long measure(Func f)
+double measure(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration_cast<milliseconds>(end - start).count();
+    return duration<double, milli>(end - start).count();
 }
 
 void runSuite(int N)
@@ -24,15 +25,14 @@ void runSuite(int N)
     uniform_int_distribution<int> valDist(1, 1000000);
 
     DLList<int> list1;
-    long long tPushFront = measure([&]()
-                                   {
+    double tPushFront = measure([&]()
+                                {
         for (int i = 0; i < N; ++i) list1.add(0, i); });
 
     DLList<int> list2;
-    long long tPushBack = measure([&]()
-                                  {
-        for (int i = 0; i < N; ++i)
-        {
+    double tPushBack = measure([&]()
+                               {
+        for (int i = 0; i < N; ++i) {
             list2.add(list2.size(), i);
         } });
 
@@ -41,8 +41,8 @@ void runSuite(int N)
     {
         list3.add(list3.size(), i);
     }
-    long long tInsert = measure([&]()
-                                {
+    double tInsert = measure([&]()
+                             {
         for (int i = 0; i < N; ++i) {
             uniform_int_distribution<size_t> posDist(0, list3.size());
             list3.add(posDist(gen), valDist(gen));
@@ -53,8 +53,8 @@ void runSuite(int N)
     {
         list4.add(list4.size(), i);
     }
-    long long tRemove = measure([&]()
-                                {
+    double tRemove = measure([&]()
+                             {
         for (int i = 0; i < N; ++i) {
             uniform_int_distribution<size_t> posDist(0, list4.size() - 1);
             list4.remove(posDist(gen));
@@ -66,20 +66,27 @@ void runSuite(int N)
         list5.add(list5.size(), i);
     }
     uniform_int_distribution<size_t> posDist(0, list5.size() - 1);
-    long long tGetSet = measure([&]()
-                                {
+    double tGetSet = measure([&]()
+                             {
         for (int i = 0; i < N; ++i) {
             size_t pos = posDist(gen);
             int val = list5.get(pos);
             list5.set(pos, val + 1);
         } });
 
+    auto format = [](double t) -> string
+    {
+        ostringstream oss;
+        oss << fixed << setprecision(3) << t << "ms";
+        return oss.str();
+    };
+
     cout << left << setw(12) << N
-         << setw(15) << (to_string(tPushFront) + "ms")
-         << setw(15) << (to_string(tPushBack) + "ms")
-         << setw(15) << (to_string(tInsert) + "ms")
-         << setw(15) << (to_string(tRemove) + "ms")
-         << setw(15) << (to_string(tGetSet) + "ms") << endl;
+         << setw(15) << format(tPushFront)
+         << setw(15) << format(tPushBack)
+         << setw(15) << format(tInsert)
+         << setw(15) << format(tRemove)
+         << setw(15) << format(tGetSet) << endl;
 }
 
 int main()
