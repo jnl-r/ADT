@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdlib>   
 #include <ctime>
-#include <utility> //for swap
+#include <utility> 
+#include <stdexcept> // Added for runtime_error
 #include "../include/prioqueue.h"
 
 template <typename T>
@@ -9,9 +10,7 @@ class MeldableHeap : public PriorityQueue<T> {
 private:
     struct Node {
         T value;
-        Node* left;
-        Node* right;
-
+        Node *left, *right;
         Node(const T& v) : value(v), left(nullptr), right(nullptr) {}
     };
 
@@ -22,12 +21,10 @@ private:
         if (!h1) return h2;
         if (!h2) return h1;
 
-        // ensure min-heap
         if (h2->value < h1->value) {
             std::swap(h1, h2);
         }
 
-        // randomly swap children
         if (rand() % 2) {
             std::swap(h1->left, h1->right);
         }
@@ -59,7 +56,7 @@ public:
     }
 
     T pop() override {
-        if (!root) return T();
+        if (!root) throw std::runtime_error("Heap is empty");
 
         T minVal = root->value;
         Node* oldRoot = root;
@@ -74,11 +71,6 @@ public:
     const T& top() const override {
         if (!root) throw std::runtime_error("Heap is empty");
         return root->value;
-    }
-
-    T pop() override {
-        if (!root) throw std::runtime_error("Heap is empty");
-    ...
     }
 
     bool empty() const override {
@@ -96,7 +88,6 @@ public:
     }
 
     void merge(PriorityQueue<T>& other) override {
-        // downcast (safe if same type)
         MeldableHeap<T>* o = dynamic_cast<MeldableHeap<T>*>(&other);
         if (!o) return;
 
