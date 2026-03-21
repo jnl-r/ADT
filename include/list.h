@@ -2,11 +2,14 @@
 #include <cstddef>
 
 template <typename T>
-struct List
+class List
 {
-	virtual void add(const size_t i, const T& x) = 0;
-	virtual T remove(const size_t i) = 0;
-	virtual T get(const size_t i) const = 0;
-	virtual T set(const size_t i, const T& x) = 0;
+public:
+	virtual ~List() = default;
+	virtual void add(size_t i, const T &x) = 0;
+	virtual T remove(size_t i) = 0;
+	virtual T get(size_t i) const = 0;
+	virtual T set(size_t i, const T &x) = 0;
 	virtual size_t size() const = 0;
+	virtual void clear() = 0;
 };

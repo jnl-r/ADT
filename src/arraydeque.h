@@ -8,29 +8,112 @@
 template <typename T>
 class ArrayDeque : public Deque<T>, public List<T>
 {
-public: 
-    array<T> a;
-    int j;
-    int n;
-    const static size_t MIN_CAPACITY = 10;
-
-    ArrayDeque() : a(MIN_CAPACITY), j(0), n(0) {}
-
-    void resize() {
-        size_t new_len = std::max(MIN_CAPACITY, 2 * a.length);
-        array<T> b(new_len);
-        for (int k = 0; k < n; k++) {
+private:
+    void resize()
+    {
+        array<T> b(std::max(2 * n, 1));
+        for (int k = 0; k < n; k++)
+        {
             b[k] = a[(j + k) % a.length];
         }
         a = b;
         j = 0;
     }
 
-    void add(const size_t i, const T& x) override {
-        if (i > (size_t)n) return;
-        if ((size_t)n + 1 > a.length) resize();
+public:
+    array<T> a;
+    int j;
+    int n;
 
-        if (i < (size_t)n / 2) {
+    ArrayDeque() : a(10), j(0), n(0) {}
+
+    // From deque.h
+    void addFirst(const T &x) override
+    {
+        if (n + 1 > a.length)
+            resize();
+
+        j = (j == 0) ? a.length - 1 : j - 1;
+        a[j] = x;
+        n++;
+    }
+
+    void addLast(const T &x) override
+    {
+        if (n + 1 > a.length)
+            resize();
+
+        a[(j + n) % a.length] = x;
+        n++;
+    }
+
+    T removeFirst() override
+    {
+        if (n == 0)
+            throw std::runtime_error("Empty deque");
+
+        T x = a[j];
+        j = (j + 1) % a.length;
+        n--;
+
+        if (a.length >= 3 * n)
+            resize();
+        return x;
+    }
+
+    T removeLast() override
+    {
+        if (n == 0)
+            throw std::runtime_error("Empty deque");
+
+        T x = a[(j + n - 1) % a.length];
+        n--;
+
+        if (a.length >= 3 * n)
+            resize();
+        return x;
+    }
+
+    const T peekFirst() const override
+    {
+        if (n == 0)
+            throw std::runtime_error("Empty deque");
+        return a[j];
+    }
+
+    const T peekLast() const override
+    {
+        if (n == 0)
+            throw std::runtime_error("Empty deque");
+        return a[(j + n - 1) % a.length];
+    }
+
+    bool isEmpty() const override
+    {
+        return n == 0;
+    }
+
+    void clear() override
+    {
+        n = 0;
+        j = 0;
+    }
+
+    size_t size() const override
+    {
+        return n;
+    }
+
+    // From list.h
+    void add(const size_t i, const T &x) override
+    {
+        if (i < 0 || i > n)
+            throw std::out_of_range("Index out of bounds");
+        if (n + 1 > a.length)
+            resize();
+
+        if (i < n / 2)
+        {
             j = (j == 0) ? a.length - 1 : j - 1;
             for (int k = (int)i; k > 0; k--) {
                 a[(j + k) % a.length] = a[(j + k - 1) % a.length];
@@ -44,8 +127,11 @@ public:
         n++;
     }
 
-    T remove(const size_t i) override {
-        if (i >= (size_t)n) return T();
+    T remove(const size_t i) override
+    {
+        if (i < 0 || i >= n)
+            throw std::out_of_range("Index out of bounds");
+
         T x = a[(j + i) % a.length];
 
         if (i < (size_t)n / 2) {
@@ -58,17 +144,10 @@ public:
                 a[(j + k) % a.length] = a[(j + k + 1) % a.length];
             }
         }
-        n--;
 
-        if (a.length > MIN_CAPACITY && (size_t)n < a.length / 4) {
-            size_t new_len = std::max(MIN_CAPACITY, a.length / 2);
-            array<T> b(new_len);
-            for (int k = 0; k < n; k++) {
-                b[k] = a[(j + k) % a.length];
-            }
-            a = b;
-            j = 0;
-        }
+        n--;
+        if (a.length >= 3 * n && a.length > 10)
+            resize();
         return x;
     }
 
@@ -83,18 +162,4 @@ public:
         a[(j + i) % a.length] = x;
         return y;
     }
-
-    size_t size() const override { return n; }
-
-    void pushFront(const T& value) override { add(0, value); }
-    void pushBack(const T& value) override  { add(n, value); }
-    T popFront() override                   { if (empty()) return T(); return remove(0); }
-    T popBack() override                    { if (empty()) return T(); return remove(n - 1); }
-    const T& front() const override         { return a[j]; }
-    const T& back() const override          { return a[(j + n - 1) % a.length]; }
-    bool empty() const override             { return n == 0; }
-    
 };
-
-template <typename T>
-const size_t ArrayDeque<T>::MIN_CAPACITY;
