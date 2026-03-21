@@ -1,224 +1,102 @@
+#include "../src/dllist.h"
 #include <iostream>
 #include <chrono>
 #include <random>
-#include <string>
-#include <sstream>
-#include "../src/dllist.h"
+#include <iomanip>
+#include <vector>
 
 using namespace std;
 using namespace std::chrono;
 
 template <typename Func>
-double measureTime(Func f)
+long long measure(Func f)
 {
     auto start = high_resolution_clock::now();
     f();
     auto end = high_resolution_clock::now();
-    return duration<double>(end - start).count();
+    return duration_cast<milliseconds>(end - start).count();
 }
 
-void benchmarkPushFront(int N)
-{
-    DLList<int> list;
-    double time = measureTime([&]()
-                              {
-        for (int i = 0; i < N; ++i) {
-            list.add(0, i);
-        } });
-    cout << "Push front (" << N << " operations): " << time << " seconds\n";
-}
-
-void benchmarkPushBack(int N)
-{
-    DLList<int> list;
-    double time = measureTime([&]()
-                              {
-        for (int i = 0; i < N; ++i) {
-            list.add(list.size(), i);
-        } });
-    cout << "Push back (" << N << " operations): " << time << " seconds\n";
-}
-
-void benchmarkRandomInserts(int N)
+void runSuite(int N)
 {
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> valDist(1, 1000000);
 
-    DLList<int> list;
+    DLList<int> list1;
+    long long tPushFront = measure([&]()
+                                   {
+        for (int i = 0; i < N; ++i) list1.add(0, i); });
+
+    DLList<int> list2;
+    long long tPushBack = measure([&]()
+                                  {
+        for (int i = 0; i < N; ++i)
+        {
+            list2.add(list2.size(), i);
+        } });
+
+    DLList<int> list3;
     for (int i = 0; i < N / 10; ++i)
-        list.add(list.size(), i);
-
-    double time = measureTime([&]()
-                              {
+    {
+        list3.add(list3.size(), i);
+    }
+    long long tInsert = measure([&]()
+                                {
         for (int i = 0; i < N; ++i) {
-            uniform_int_distribution<size_t> posDist(0, list.size());
-            size_t pos = posDist(gen);
-            list.add(pos, valDist(gen));
+            uniform_int_distribution<size_t> posDist(0, list3.size());
+            list3.add(posDist(gen), valDist(gen));
         } });
-    cout << "Random inserts (" << N << " operations): " << time << " seconds\n";
-}
 
-void benchmarkRandomRemoves(int N)
-{
-    random_device rd;
-    mt19937 gen(rd());
-
-    DLList<int> list;
+    DLList<int> list4;
     for (int i = 0; i < N * 2; ++i)
-        list.add(list.size(), i);
-
-    double time = measureTime([&]()
-                              {
+    {
+        list4.add(list4.size(), i);
+    }
+    long long tRemove = measure([&]()
+                                {
         for (int i = 0; i < N; ++i) {
-            uniform_int_distribution<size_t> posDist(0, list.size() - 1);
-            size_t pos = posDist(gen);
-            list.remove(pos);
+            uniform_int_distribution<size_t> posDist(0, list4.size() - 1);
+            list4.remove(posDist(gen));
         } });
-    cout << "Random removes (" << N << " operations): " << time << " seconds\n";
-}
 
-void benchmarkRandomGetSet(int N)
-{
-    random_device rd;
-    mt19937 gen(rd());
-
-    DLList<int> list;
+    DLList<int> list5;
     for (int i = 0; i < N * 2; ++i)
-        list.add(list.size(), i);
-
-    uniform_int_distribution<size_t> posDist(0, list.size() - 1);
-
-    double time = measureTime([&]()
-                              {
+    {
+        list5.add(list5.size(), i);
+    }
+    uniform_int_distribution<size_t> posDist(0, list5.size() - 1);
+    long long tGetSet = measure([&]()
+                                {
         for (int i = 0; i < N; ++i) {
             size_t pos = posDist(gen);
-            int val = list.get(pos);
-            list.set(pos, val + 1);
+            int val = list5.get(pos);
+            list5.set(pos, val + 1);
         } });
-    cout << "Random get/set (" << N << " operations): " << time << " seconds\n";
+
+    cout << left << setw(12) << N
+         << setw(15) << (to_string(tPushFront) + "ms")
+         << setw(15) << (to_string(tPushBack) + "ms")
+         << setw(15) << (to_string(tInsert) + "ms")
+         << setw(15) << (to_string(tRemove) + "ms")
+         << setw(15) << (to_string(tGetSet) + "ms") << endl;
 }
 
 int main()
 {
-    string line;
-    cout << "\n\n\n################################################################################\n";
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DLLIST TIME BENCHMARK ~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    cout << "\nCommands:" << endl;
-    cout << "  all <N>                     run all benchmarks with N operations" << endl;
-    cout << "  pushfront <N>               push front N times" << endl;
-    cout << "  pushback <N>                push back N times" << endl;
-    cout << "  randominserts <N>           random inserts N times" << endl;
-    cout << "  randomremoves <N>           random removes N times" << endl;
-    cout << "  randomgetset <N>            random get/set N times" << endl;
-    cout << "  quit                        exit" << endl;
-    cout << "\n--------------------------------------------------------------------------------\n";
-    cout << "################################################################################\n";
+    cout << "\nDOUBLY LINKED LIST PERFORMANCE (times in milliseconds)\n";
+    cout << left << setw(12) << "Elements"
+         << setw(15) << "Push Front"
+         << setw(15) << "Push Back"
+         << setw(15) << "Insert"
+         << setw(15) << "Remove"
+         << setw(15) << "Get/Set" << endl;
+    cout << string(85, '-') << endl;
 
-    cout << "> ";
-    while (getline(cin, line))
+    vector<int> sizes = {10000, 50000, 100000, 500000, 1000000};
+    for (int N : sizes)
     {
-        if (line.empty())
-        {
-            cout << "> ";
-            continue;
-        }
-
-        istringstream iss(line);
-        string cmd;
-        iss >> cmd;
-
-        if (cmd == "quit" || cmd == "exit")
-        {
-            break;
-        }
-        else if (cmd == "all")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                cout << "\n\n\n################################################################################\n";
-                cout << "~~~~~~~~~~~~~~~~~~~~~ RUNNING ALL BENCHMARKS WITH N = " << N << " ~~~~~~~~~~~~~~~~~~~~\n";
-                cout << "         (sheesh! operations completed before the clock could react...)\n\n";
-                benchmarkPushFront(N);
-                benchmarkPushBack(N);
-                benchmarkRandomInserts(N);
-                benchmarkRandomRemoves(N);
-                benchmarkRandomGetSet(N);
-                cout << "--------------------------------------------------------------------------------\n";
-                cout << "################################################################################\n";
-            }
-        }
-        else if (cmd == "pushfront")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkPushFront(N);
-            }
-        }
-        else if (cmd == "pushback")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkPushBack(N);
-            }
-        }
-        else if (cmd == "randominserts")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkRandomInserts(N);
-            }
-        }
-        else if (cmd == "randomremoves")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkRandomRemoves(N);
-            }
-        }
-        else if (cmd == "randomgetset")
-        {
-            int N;
-            if (!(iss >> N) || N <= 0)
-            {
-                cout << "Please provide a positive integer N." << endl;
-            }
-            else
-            {
-                benchmarkRandomGetSet(N);
-            }
-        }
-        else
-        {
-            cout << "Unknown command." << endl;
-        }
-
-        cout << "> ";
+        runSuite(N);
     }
 
     return 0;
